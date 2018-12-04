@@ -79,11 +79,12 @@ def jeu(joueurs):
     position = 0
     numero_joueur = randint(0,nb_joueurs)
     for i in range(nb_joueurs):
-        while joueurs[1][i] != 0 :
+        while joueurs[0][i] > 0 :
             r = lancerdede()
             joueurs[2][numero_joueur] += r
             if joueurs[2][numero_joueur] > len(L) : 
                 joueurs[2][numero_joueur] -= len(L)
+                joueurs[0][numero_joueur] += 2
             for k in range(nb_joueurs):
                 joueurs = acheter(joueurs[2][numero_joueur], numero_joueur)
                 joueurs = payer(joueurs[2][numero_joueur], numero_joueur)
