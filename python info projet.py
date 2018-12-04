@@ -48,12 +48,12 @@ def acheter(position, numero_joueur):
     entrée : position du joueur, numero du joueur
     sortie : informations des joueurs si le joueur avec lequel on travaille achète une propriété 
     '''
-    if joueurs[0][numero_joueur] > abs(joueurs[1][numero_joueur][position-1]) and position != 0 and joueurs[1][numero_joueur][position-1] != 0:
-        joueurs[0][numero_joueur] -= joueurs[1][numero_joueur][position-1]
-        for i in range(nb_joueurs) :
-            if i != numero_joueur :
-                joueurs[1][i][position-1] = -joueurs[1][numero_joueur][position-1]
-        joueurs[1][numero_joueur][position-1] = 0
+    if position != 0 and joueurs[1][numero_joueur][position] > 0 and joueurs[0][numero_joueur] > joueurs[1][numero_joueur][position]:    
+        joueurs[0][numero_joueur] -= joueurs[1][numero_joueur][position]
+        for i in range(nb_joueur):
+            if i != numero_joueur:
+                joueurs[1][i][position] = -joueurs[1][numero_joueur][position]
+            joueurs[1][numero_joueur][position] = 0
     return joueurs
 
 def payer(position, numero_joueur):
