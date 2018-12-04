@@ -61,12 +61,13 @@ def payer(position, numero_joueur):
     entrée : position du joueur, numero du joueur
     sortie : informations des joueurs si le joueur avec lequel on travaille tombe sur une case achetée par un autre joueur
     '''
-    if joueurs[1][numero_joueur][position-1] < 0:
-        joueurs[0][numero_joueur] += joueurs[1][numero_joueur][position-1]
-    for k in range(nb_joueurs):
-        if k != numero_joueur:
-            if joueurs[1][k][position-1] == 0 :
-                joueurs[0][k] -= joueurs[1][numero_joueur][position-1]
+    argent_perdu = joueurs[1][numero_joueur][position]
+    if argent_perdu < 0:
+        joueurs[0][numero_joueur] += argent_perdu
+    for i in range(nb_joueur):
+        if i != numero_joueur:
+            if joueurs[1][i][position] == 0:
+                joueurs[0][i] -= argent_perdu
     return joueurs
 
 def jeu(joueurs):
