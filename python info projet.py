@@ -168,3 +168,85 @@ def jeu(joueurs):
             if numero_joueur >= nb_joueurs : 
                 numero_joueur -= nb_joueurs
     return joueurs
+
+##
+L = [2,-1,-2,0,-3,-4]
+position_j1 = position_j2 = 0
+argent_j1 = argent_j2 = 5
+Cases_j1 = [2,1,2,0,3,0]
+Cases_j2 = [2,0,0,0,0,4]
+Cases_j3 = [0 for k in range(len(L))]
+Cases_j3[0] = 2
+for k in range(1,len(L)):
+    if random()<1/2:
+        Cases_j3[k] = -L[k]
+joueurs = [[argent_j1,argent_j2],[Cases_j1, Cases_j2],[position_j1,position_j2]]
+nb_joueurs = len(joueurs[0])
+
+def lancerdede():
+    '''Stimule un lancer de dé'''
+    return randint(1,6)
+'''
+def compteur(argent,nb_lancer):
+    p = position
+    while nb_lancer != 0 :
+        p += lancerdede()
+        nb_lancer -= 1
+        if p > len(L) :
+            p -= len(L)
+            argent += 2
+        print(argent,p)
+        #if input("acheter la case"+ L[p-1] + "?") == "oui":
+        argent += L[p-1]
+    return (argent, p)
+'''
+def acheter(position, numero_joueur):
+    '''
+    entrée : position du joueur, numero du joueur
+    sortie : informations des joueurs si le joueur avec lequel on travaille achète une propriété 
+    '''
+    if joueurs[0][numero_joueur] > abs(joueurs[1][numero_joueur][position-1]) and position != 0 and joueurs[1][numero_joueur][position-1] != 0:
+        joueurs[0][numero_joueur] -= joueurs[1][numero_joueur][position-1]
+        for i in range(nb_joueurs) :
+            if i != numero_joueur :
+                joueurs[1][i][position-1] = -joueurs[1][numero_joueur][position-1]
+        joueurs[1][numero_joueur][position-1] = 0
+    return joueurs
+
+def payer(position, numero_joueur):
+    '''
+    entrée : position du joueur, numero du joueur
+    sortie : informations des joueurs si le joueur avec lequel on travaille tombe sur une case achetée par un autre joueur
+    '''
+    if joueurs[1][numero_joueur][position-1] < 0:
+        joueurs[0][numero_joueur] += joueurs[1][numero_joueur][position-1]
+    for k in range(nb_joueurs):
+        if k != numero_joueur:
+            if joueurs[1][k][position-1] == 0 :
+                joueurs[0][k] -= joueurs[1][numero_joueur][position-1]
+    return joueurs
+
+def elimination():
+    k <= 0
+    return k in joueurs[0] 
+
+def jeu(joueurs):
+    '''
+    entrée : informations sur les joueurs avant de commencer la partie
+    Sortie : joueur gagnant, et informations sur les joueurs
+    Comment ? Un joueur lance un dé, achète la propriété ou non, c'est au joueur suivant qui lance un dé, paye ou achète, etc
+    '''
+    position = 0
+    numero_joueur = randint(0,nb_joueurs)
+    #for i in range(nb_joueurs): #pour chaque joueur
+    while not elimination() : #tant qu'aucun joueur n'est éliminé
+        r = lancerdede() #on lance le dé
+        joueurs[2][numero_joueur] += r #le joueur se trouve sur la nouvelle case
+        if joueurs[2][numero_joueur] > len(L) : #si il est au bout
+            joueurs[2][numero_joueur] -= len(L) #il recommence un tour
+        joueurs = acheter(joueurs[2][numero_joueur], numero_joueur) #soit il achete 
+        joueurs = payer(joueurs[2][numero_joueur], numero_joueur) #soit il paye
+        numero_joueur += 1 #on passe au joueur suivant
+        if numero_joueur >= nb_joueurs: #si on est au dernier joueur,
+            numero_joueur -= nb_joueurs #on retourne au premier joueur
+    return joueurs
