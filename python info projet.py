@@ -263,6 +263,22 @@ def jeu(joueurs):
 
 
 
+##
+'''
+joueur 1 achète petites cases
+joueur 2 achete grosses cases
+joueur 3 aléatoire
+joueur 4 achete rien
+J1 = 0
+J2 = 0
+Cases(J1) = [[],[]]
+Cases[J1]
+'''
+##
+from random import random, randint
+import matplotlib.pyplot as plt
+import numpy as np
+
 Liste = [2,-1,-2,0,-3,-4]
 # position_j1 = position_j2 = 0
 argent_j1 = argent_j2 = 5
@@ -275,7 +291,7 @@ Cases_j2 = [2,0,0,0,0,4]
 #         Cases_j3[k] = -L[k]
 argent = [argent_j1, argent_j2]
 case = [Cases_j1, Cases_j2]
-position = [position_j1, position_j2]
+# position = [position_j1, position_j2]
 
 nb_joueurs = 2
 
@@ -289,17 +305,17 @@ def acheter(place, numero_joueur):
         sortie : la liste joueurs modifiée avec les nouvelles valeurs d'argent et des cases
         fonction permettant au joueur de pouvoir acheter une case 
     """
-    print("position",position)
+    print("place",place)
     print("numero_joueur", numero_joueur)
     print("case",case)
     print("argent", argent)
-    position[numero_joueur] = place
-    if position[numero_joueur] != 0 and argent[numero_joueur] > case[numero_joueur][position[numero_joueur]] > 0:
-        argent[numero_joueur] -= case[numero_joueur][position[numero_joueur]]
-        case[numero_joueur][position[numero_joueur]] = 0
+    # position[numero_joueur] = place
+    if place != 0 and argent[numero_joueur] > case[numero_joueur][place] > 0:
+        argent[numero_joueur] -= case[numero_joueur][place]
+        case[numero_joueur][place] = 0
         for i in range(2):
             if i != numero_joueur:
-                case[i][position[numero_joueur]] = Liste[position[numero_joueur]]
+                case[i][place] = Liste[place]
     return argent,case 
     
 def payer (place, numero_joueur):
@@ -308,13 +324,13 @@ def payer (place, numero_joueur):
         sortie : la liste joueurs modifiée avec les nouvelles valeurs d'argent et des cases
         fonction permettant au joueur de payer au joueur possédant la case où il se trouve
     """ 
-    position[numero_joueur] = place
-    argent_perdu = case[numero_joueur][position[numero_joueur]]
+    # position[numero_joueur] = place
+    argent_perdu = case[numero_joueur][place]
     if argent_perdu < 0:
         argent[numero_joueur] += argent_perdu
     for i in range(2):
         if i != numero_joueur:
-            if case[i][position[numero_joueur]] == 0:
+            if case[i][place] == 0:
                 argent[i] -= argent_perdu
     return argent,case
         
@@ -358,7 +374,6 @@ def jeu(argent,case,position_j1,position_j2):
     return argent,case,position
 
 print(jeu(argent,case,0,0))
-
 
 
 
