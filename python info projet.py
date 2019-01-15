@@ -374,3 +374,154 @@ def jeu(argent,case,position_j1,position_j2, position_j3):
     return argent,case,position
 
 print(jeu(argent,case,0,0,0))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+##
+'''
+joueur 1 achète petites cases
+joueur 2 achete grosses cases
+joueur 3 aléatoire
+joueur 4 achete rien
+J1 = 0
+J2 = 0
+Cases(J1) = [[],[]]
+Cases[J1]
+'''
+##
+from random import random, randint
+import matplotlib.pyplot as plt
+import numpy as np
+
+Liste = [2,-1,-2,0,-3,-4]
+# position_j1 = position_j2 = 0
+argent_j1 = argent_j2 = 3
+Cases_j1 = [2,1,2,0,3,0]
+Cases_j2 = [2,0,0,0,0,4]
+# Cases_j3 = [0 for k in range(len(L))]
+# Cases_j3[0] = 2
+# for k in range(1,len(L)):
+#     if random()<1/2:
+#         Cases_j3[k] = -L[k]
+argent = [argent_j1, argent_j2]
+case = [Cases_j1, Cases_j2]
+# position = [position_j1, position_j2]
+
+nb_joueurs = 2
+
+def lancerdede():
+    '''Stimule un lancer de dé'''
+    return randint(1,6)
+    
+def acheter(place, numero_joueur):
+    """ entrée : case où se trouve le joueur
+                 le joueur qui joue
+        sortie : la liste joueurs modifiée avec les nouvelles valeurs d'argent et des cases
+        fonction permettant au joueur de pouvoir acheter une case 
+    """
+    print("numero_joueur", numero_joueur)
+    print("place",place)
+    # position[numero_joueur] = place
+    if place != 0 and argent[numero_joueur] > case[numero_joueur][place] > 0:
+        argent[numero_joueur] -= case[numero_joueur][place]
+        case[numero_joueur][place] = 0
+        for i in range(2):
+            if i != numero_joueur:
+                case[i][place] = Liste[place]
+    print("case",case)
+    print("argent", argent)
+    print(" ")
+    return argent,case 
+    
+def payer (place, numero_joueur):
+    """ entrée : case où se trouve le joueur
+                 le joueur qui joue
+        sortie : la liste joueurs modifiée avec les nouvelles valeurs d'argent et des cases
+        fonction permettant au joueur de payer au joueur possédant la case où il se trouve
+    """ 
+    # position[numero_joueur] = place
+    argent_perdu = case[numero_joueur][place]
+    if argent_perdu < 0:
+        argent[numero_joueur] += argent_perdu
+    for i in range(2):
+        if i != numero_joueur:
+            if case[i][place] == 0:
+                argent[i] -= argent_perdu
+    return argent,case
+        
+    
+        
+# ----------------------------------------------------------PROGRAMME----------------------------------------------------------------------
+  
+# Case = np.array([[2,-1,-2,0,-3,-4],[-1,1,1,1,1,-1],[-2,1,1,1,1,-2],[0,1,1,1,1,0],[-3,1,1,1,1,-3],[-4,-1,-2,0,-3,-4]])
+# Plateau = plt.matshow(Case)
+# plt.colorbar(Plateau)
+# plt.show()
+
+def elimination(L):
+    c = 0
+    for i in range(len(L)):
+        if L[i] <= 0:
+            c += 1
+    return c!=0
+            
+def tour(numero_joueur, argent, case, position):
+    r = lancerdede()
+    print("lancerdede", r)
+    position[numero_joueur] += r #le joueur avance
+    if position[numero_joueur] > len(Liste)-1 : #si il est au bout
+        position[numero_joueur] -= len(Liste)
+        print("position_numero_joueur",position[numero_joueur]) #il recommence un tour
+        argent[numero_joueur] += 2
+    argent,case = acheter(position[numero_joueur], numero_joueur) #soit il achete
+    argent,case = payer(position[numero_joueur], numero_joueur) #soit il paye
+    return argent,case,position
+
+def jeu(argent,case,position_j1,position_j2):
+    '''
+    entrée : informations sur les joueurs avant de commencer la partie
+    Sortie : joueur gagnant, et informations sur les joueurs
+    Comment ? Un joueur lance un dé, achète la propriété ou non, c'est au joueur suivant qui lance un dé, paye ou achète, etc
+    '''
+    position = [position_j1,position_j2]
+    k=0
+    while not elimination(argent) and k !=100 : #tant qu'aucun joueur n'est éliminé
+        for i in range(nb_joueurs):
+            argent,case,position = tour(i,argent,case,position)
+            k+=1
+    return argent,case,position
+
+print(jeu(argent,case,0,0))
+
+
+
+
+
+
