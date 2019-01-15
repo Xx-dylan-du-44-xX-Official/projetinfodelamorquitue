@@ -305,10 +305,8 @@ def acheter(place, numero_joueur):
         sortie : la liste joueurs modifiée avec les nouvelles valeurs d'argent et des cases
         fonction permettant au joueur de pouvoir acheter une case 
     """
-    print("place",place)
     print("numero_joueur", numero_joueur)
-    print("case",case)
-    print("argent", argent)
+    print("place",place)
     # position[numero_joueur] = place
     if place != 0 and argent[numero_joueur] > case[numero_joueur][place] > 0:
         argent[numero_joueur] -= case[numero_joueur][place]
@@ -316,6 +314,9 @@ def acheter(place, numero_joueur):
         for i in range(2):
             if i != numero_joueur:
                 case[i][place] = Liste[place]
+    print("case",case)
+    print("argent", argent)
+    print(" ")
     return argent,case 
     
 def payer (place, numero_joueur):
@@ -352,13 +353,14 @@ def elimination(L):
             
 def tour(numero_joueur, argent, case, position):
     r = lancerdede()
-    position[numero_joueur] += r #le joueur avance
-    if position[numero_joueur] > len(Liste) : #si il est au bout
-        position[numero_joueur] -= len(Liste) #il recommence un tour
-        argent[numero_joueur] += 2
-    argent,case = acheter(position[numero_joueur], numero_joueur) #soit il achete 
-    argent,case = payer(position[numero_joueur], numero_joueur) #soit il paye
     print("lancerdede", r)
+    position[numero_joueur] += r #le joueur avance
+    if position[numero_joueur] > len(Liste)-1 : #si il est au bout
+        position[numero_joueur] -= len(Liste)
+        print("position_numero_joueur",position[numero_joueur]) #il recommence un tour
+        argent[numero_joueur] += 2
+    argent,case = acheter(position[numero_joueur], numero_joueur) #soit il achete
+    argent,case = payer(position[numero_joueur], numero_joueur) #soit il paye
     return argent,case,position
 
 def jeu(argent,case,position_j1,position_j2):
