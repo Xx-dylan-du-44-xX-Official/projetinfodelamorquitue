@@ -522,6 +522,7 @@ print(jeu(argent,case,0,0,0))
 
 
 YOUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU
+
 '''
 joueur 1 achète petites cases
 joueur 2 achete grosses cases
@@ -540,38 +541,39 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 Liste = [200,-60,-60,0,-100,-100,-120,0,-140,-140,-160,0,-180,-180,-200,0,-220,-220,-240,0,-260,-260,-280,0,-300,-300,-320,0,-350,-400]
-argent_j1 = argent_j2 = 1500
+argent_j1 = argent_j2 = argent_j3 = 1500
 
-#Cases joueur 1
+# Cases joueur 1
 Cases_j1 = []
 for k in Liste:
     if k >= -280 and k != 200 :
-        Cases_j1.append(abs(k)/2)
+        Cases_j1.append(abs(k))
     elif k == 200:
         Cases_j1.append(k)
     else :
         Cases_j1.append(0)
 
-#Cases joueur 2
+# Cases joueur 2
 Cases_j2 = []
 for k in Liste :
-    if k < 280:
-        Cases_j2.append(abs(k)/2)
+    if k < -280:
+        Cases_j2.append(abs(k))
     elif k == 200 :
         Cases_j2.append(k)
     else :
         Cases_j2.append(0)
 
-# Cases_j3 = [0 for k in range(len(L))]
-# Cases_j3[0] = 2
-# for k in range(1,len(L)):
-#     if random()<1/2:
-#         Cases_j3[k] = -L[k]
-argent = [argent_j1, argent_j2]
-case = [Cases_j1, Cases_j2]
+# Cases joueur 3
+Cases_j3 = [0 for k in range(len(Liste))]
+Cases_j3[0] = 200
+for k in range(1,len(Liste)):
+    if random()<1/2:
+        Cases_j3[k] = -Liste[k]
+argent = [argent_j1, argent_j2, argent_j3]
+case = [Cases_j1, Cases_j2, Cases_j3]
 # position = [position_j1, position_j2]
 
-nb_joueurs = 2
+nb_joueurs = 3
 
 def lancerdede():
     '''Stimule un lancer de dé'''
@@ -589,9 +591,9 @@ def acheter(place, numero_joueur):
     if place != 0 and argent[numero_joueur] > case[numero_joueur][place] > 0:
         argent[numero_joueur] -= case[numero_joueur][place]
         case[numero_joueur][place] = 0
-        for i in range(2):
+        for i in range(3):
             if i != numero_joueur:
-                case[i][place] = Liste[place]
+                case[i][place] = Liste[place]/2
     print("case",case)
     print("argent", argent)
     print(" ")
@@ -607,7 +609,7 @@ def payer (place, numero_joueur):
     argent_perdu = case[numero_joueur][place]
     if argent_perdu < 0:
         argent[numero_joueur] += argent_perdu
-    for i in range(2):
+    for i in range(3):
         if i != numero_joueur:
             if case[i][place] == 0:
                 argent[i] -= argent_perdu
@@ -641,13 +643,13 @@ def tour(numero_joueur, argent, case, position):
     argent,case = payer(position[numero_joueur], numero_joueur) #soit il paye
     return argent,case,position
 
-def jeu(argent,case,position_j1,position_j2):
+def jeu(argent,case,position_j1,position_j2, position_j3):
     '''
     entrée : informations sur les joueurs avant de commencer la partie
     Sortie : joueur gagnant, et informations sur les joueurs
     Comment ? Un joueur lance un dé, achète la propriété ou non, c'est au joueur suivant qui lance un dé, paye ou achète, etc
     '''
-    position = [position_j1,position_j2]
+    position = [position_j1,position_j2, position_j3]
     k = 0
     while not elimination(argent) and k != 100: #tant qu'aucun joueur n'est éliminé et que l'on ne fait pas un match nul
         for i in range(nb_joueurs):
@@ -655,5 +657,4 @@ def jeu(argent,case,position_j1,position_j2):
         k += 1
     return argent,case,position
 
-print(jeu(argent,case,0,0))
-
+print(jeu(argent,case,0,0,0))
