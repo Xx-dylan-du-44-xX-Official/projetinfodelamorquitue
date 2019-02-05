@@ -541,7 +541,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 Liste = [200,-60,-60,0,-100,-100,-120,0,-140,-140,-160,0,-180,-180,-200,0,-220,-220,-240,0,-260,-260,-280,0,-300,-300,-320,0,-350,-400]
-argent_j1 = argent_j2 = argent_j3 = 1500
+argent_j1 = argent_j2 = argent_j3 = argent_j4 = 1500
 
 # Cases joueur 1
 Cases_j1 = []
@@ -569,11 +569,17 @@ Cases_j3[0] = 200
 for k in range(1,len(Liste)):
     if random()<1/2:
         Cases_j3[k] = -Liste[k]
-argent = [argent_j1, argent_j2, argent_j3]
-case = [Cases_j1, Cases_j2, Cases_j3]
+        
+# Cases joueur 4
+Cases_j4 = []
+for k in Liste:
+    Cases_j4.append(abs(k))
+
+argent = [argent_j1, argent_j2, argent_j3, argent_j4]
+case = [Cases_j1, Cases_j2, Cases_j3, Cases_j4]
 # position = [position_j1, position_j2]
 
-nb_joueurs = 3
+nb_joueurs = 4
 
 def lancerdede():
     '''Stimule un lancer de dé'''
@@ -591,7 +597,7 @@ def acheter(place, numero_joueur):
     if place != 0 and argent[numero_joueur] > case[numero_joueur][place] > 0:
         argent[numero_joueur] -= case[numero_joueur][place]
         case[numero_joueur][place] = 0
-        for i in range(3):
+        for i in range(4):
             if i != numero_joueur:
                 case[i][place] = Liste[place]/2
     print("case",case)
@@ -609,7 +615,7 @@ def payer (place, numero_joueur):
     argent_perdu = case[numero_joueur][place]
     if argent_perdu < 0:
         argent[numero_joueur] += argent_perdu
-    for i in range(3):
+    for i in range(4):
         if i != numero_joueur:
             if case[i][place] == 0:
                 argent[i] -= argent_perdu
@@ -617,9 +623,9 @@ def payer (place, numero_joueur):
         
     
         
-# ----------------------------------------------------------PROGRAMME----------------------------------------------------------------------
+# --------------------------------------------------PROGRAMME----------------------------------------------------------------------
   
-# Case = np.array([[2,-1,-2,0,-3,-4],[-1,1,1,1,1,-1],[-2,1,1,1,1,-2],[0,1,1,1,1,0],[-3,1,1,1,1,-3],[-4,-1,-2,0,-3,-4]])
+# Case = np.array([[200,-60,-60,0,-100,-100,-120,0],[0,1,1,1,1,1,1,-140],[-320,1,1,1,1,1,1,-140],[-300,1,1,1,1,1,1,-160],[-300,1,1,1,1,1,1,0],[0,1,1,1,1,1,1,-180],[-280,1,1,1,1,1,1,-180],[-260,-260,0,-240,-240,-220,-220,-200]])
 # Plateau = plt.matshow(Case)
 # plt.colorbar(Plateau)
 # plt.show()
@@ -633,28 +639,27 @@ def elimination(L):
             
 def tour(numero_joueur, argent, case, position):
     r = lancerdede()
-    print("lancerdede", r)
     position[numero_joueur] += r #le joueur avance
     if position[numero_joueur] > len(Liste)-1 : #si il est au bout
-        position[numero_joueur] -= len(Liste)
-        print("position_numero_joueur",position[numero_joueur]) #il recommence un tour
+        position[numero_joueur] -= len(Liste) #il recommence un tour
         argent[numero_joueur] += 200
     argent,case = acheter(position[numero_joueur], numero_joueur) #soit il achete
     argent,case = payer(position[numero_joueur], numero_joueur) #soit il paye
     return argent,case,position
 
-def jeu(argent,case,position_j1,position_j2, position_j3):
+def jeu(argent,case,position_j1,position_j2, position_j3, position_j4):
     '''
     entrée : informations sur les joueurs avant de commencer la partie
     Sortie : joueur gagnant, et informations sur les joueurs
     Comment ? Un joueur lance un dé, achète la propriété ou non, c'est au joueur suivant qui lance un dé, paye ou achète, etc
     '''
-    position = [position_j1,position_j2, position_j3]
+    position = [position_j1,position_j2, position_j3, position_j4]
     k = 0
     while not elimination(argent) and k != 100: #tant qu'aucun joueur n'est éliminé et que l'on ne fait pas un match nul
         for i in range(nb_joueurs):
             argent,case,position = tour(i,argent,case,position)
         k += 1
+        print("tour", k)
     return argent,case,position
 
-print(jeu(argent,case,0,0,0))
+print(jeu(argent,case,0,0,0,0))
