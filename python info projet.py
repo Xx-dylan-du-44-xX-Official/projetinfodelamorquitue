@@ -663,3 +663,199 @@ def jeu(argent,case,position_j1,position_j2, position_j3, position_j4):
     return argent,case,position
 
 print(jeu(argent,case,0,0,0,0))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+'''
+joueur 1 achète petites cases
+joueur 2 achete grosses cases
+joueur 3 aléatoire
+joueur 4 achete rien
+J1 = 0
+J2 = 0
+Cases(J1) = [[],[]]
+Cases[J1]
+'''
+#coallition 
+
+##
+from random import random, randint
+import matplotlib.pyplot as plt
+import numpy as np
+from copy import deepcopy
+
+Liste = [200,-60,-60,0,-100,-100,-120,0,-140,-140,-160,0,-180,-180,-200,0,-220,-220,-240,0,-260,-260,-280,0,-300,-300,-320,0,-350,-400]
+argent_j1 = argent_j2 = argent_j3 = argent_j4 = 1500
+
+# Cases joueur 1
+Cases_j1 = []
+for k in Liste:
+    if k >= -280 and k != 200 :
+        Cases_j1.append(abs(k))
+    elif k == 200:
+        Cases_j1.append(k)
+    else :
+        Cases_j1.append(0)
+
+# Cases joueur 2
+Cases_j2 = []
+for k in Liste :
+    if k < -280:
+        Cases_j2.append(abs(k))
+    elif k == 200 :
+        Cases_j2.append(k)
+    else :
+        Cases_j2.append(0)
+
+# Cases joueur 3
+Cases_j3 = [0 for k in range(len(Liste))]
+Cases_j3[0] = 200
+for k in range(1,len(Liste)):
+    if random()<1/2:
+        Cases_j3[k] = -Liste[k]
+        
+# Cases joueur 4
+Cases_j4 = []
+for k in Liste:
+    Cases_j4.append(abs(k))
+
+argent = [argent_j1, argent_j2, argent_j3, argent_j4]
+case = [Cases_j1, Cases_j2, Cases_j3, Cases_j4]
+# position = [position_j1, position_j2]
+
+nb_joueurs = 4
+
+def lancerdede():
+    '''Stimule un lancer de dé'''
+    return randint(1,6)
+    
+def acheter(place, numero_joueur):
+    """ entrée : case où se trouve le joueur
+                 le joueur qui joue
+        sortie : la liste joueurs modifiée avec les nouvelles valeurs d'argent et des cases
+        fonction permettant au joueur de pouvoir acheter une case 
+    """
+    print("numero_joueur", numero_joueur)
+    print("place",place)
+    # position[numero_joueur] = place
+    if place != 0 and argent[numero_joueur] > case[numero_joueur][place] > 0:
+        argent[numero_joueur] -= case[numero_joueur][place]
+        case[numero_joueur][place] = 0
+        for i in range(4):
+            if i != numero_joueur:
+                case[i][place] = Liste[place]/2
+    print("case",case)
+    print("argent", argent)
+    print(" ")
+    return argent,case 
+    
+def payer (place, numero_joueur):
+    """ entrée : case où se trouve le joueur
+                 le joueur qui joue
+        sortie : la liste joueurs modifiée avec les nouvelles valeurs d'argent et des cases
+        fonction permettant au joueur de payer au joueur possédant la case où il se trouve
+    """ 
+    # position[numero_joueur] = place
+    argent_perdu = case[numero_joueur][place]
+    if argent_perdu < 0:
+        argent[numero_joueur] += argent_perdu
+    for i in range(4):
+        if i != numero_joueur:
+            if case[i][place] == 0:
+                argent[i] -= argent_perdu
+    return argent,case
+        
+    
+        
+# --------------------------------------------------PROGRAMME----------------------------------------------------------------------
+  
+# Case = np.array([[200,-60,-60,0,-100,-100,-120,0],[0,1,1,1,1,1,1,-140],[-320,1,1,1,1,1,1,-140],[-300,1,1,1,1,1,1,-160],[-300,1,1,1,1,1,1,0],[0,1,1,1,1,1,1,-180],[-280,1,1,1,1,1,1,-180],[-260,-260,0,-240,-240,-220,-220,-200]])
+# Plateau = plt.matshow(Case)
+# plt.colorbar(Plateau)
+# plt.show()
+
+def elimination(L):
+    c = 0
+    for i in range(len(L)):
+        if L[i] <= 0:
+            c += 1
+    return c!=0
+            
+def tour(numero_joueur, argent, case, position):
+    argent0 = argent.copy()
+    case0 = deepcopy(case)
+    r = lancerdede()
+    position[numero_joueur] += r #le joueur avance
+    if position[numero_joueur] > len(Liste)-1 : #si il est au bout
+        position[numero_joueur] -= len(Liste) #il recommence un tour
+        argent0[numero_joueur] += 200
+    argent0,case0 = acheter(position[numero_joueur], numero_joueur) #soit il achete
+    argent0,case0 = payer(position[numero_joueur], numero_joueur) #soit il paye
+    return argent0,case0,position
+
+def jeu(argent,case,position_j1,position_j2, position_j3, position_j4):
+    '''
+    entrée : informations sur les joueurs avant de commencer la partie
+    Sortie : joueur gagnant, et informations sur les joueurs
+    Comment ? Un joueur lance un dé, achète la propriété ou non, c'est au joueur suivant qui lance un dé, paye ou achète, etc
+    '''
+    argent1 = argent.copy()
+    case1 = deepcopy(case)
+    position = [position_j1,position_j2, position_j3, position_j4]
+    k = 0
+    while not elimination(argent1) and k != 100: #tant qu'aucun joueur n'est éliminé et que l'on ne fait pas un match nul
+        for i in range(nb_joueurs):
+            argent1,case1,position = tour(i,argent1,case1,position)
+        k += 1
+        print("tour", k)
+    return argent1,case1,position
+
+print(jeu(argent,case,0,0,0,0))
+
+def nouveau_jeu():
+    argent2 = [1500, 1500, 1500, 1500]
+    case2 = [Cases_j1, Cases_j2, Cases_j3, Cases_j4]
+    return argent2, case2
+
+def perdant(L):
+    x = min(L)
+    return L.index(x)
+    
+def moyenne(argent, case):
+    argent1 = argent.copy()
+    case1 = deepcopy(case)
+    Perdants = []
+    for i in range(100):
+        Argent = jeu(argent1,case1,0,0,0,0)[0]
+        Perdants.append(perdant(Argent))
+        print("Argent", Argent)
+    return Perdants
+        
+print(moyenne(argent, case))
