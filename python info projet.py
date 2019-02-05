@@ -849,8 +849,8 @@ def perdant(L):
     return L.index(x)
     
 def moyenne(argent, case):
-    argent1 = argent.copy()
-    case1 = deepcopy(case)
+    argent2 = argent.copy()
+    case2 = deepcopy(case)
     Perdants = []
     for i in range(100):
         Argent = jeu(argent1,case1,0,0,0,0)[0]
