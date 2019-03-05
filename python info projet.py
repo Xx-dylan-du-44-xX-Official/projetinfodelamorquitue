@@ -1248,3 +1248,21 @@ def moyenne(Li):
     return Perdant
         
 print(moyenne(Liste))
+
+def jeufinal(argent,case,position_j1,position_j2, position_j3, position_j4):
+    joueurs_en_jeu = [1,2,3,4]
+    argent1 = argent.copy()
+    case1 = deepcopy(case)
+    position = [position_j1,position_j2, position_j3, position_j4]
+    while len(argent1) != 1 :
+        jeu1 = jeu(argent1,case1,position_j1,position_j2, position_j3, position_j4)
+        perd = perdant(jeu1[0])
+        print(perd)
+        joueurs_en_jeu.pop(perd)
+        for i in range(len(case1[perd])) :
+            if case1[perd][i] == 0 and i != 0 :
+                for k in joueurs_en_jeu:
+                    case1[k-1][i] = Case_init[k-1][i]
+        argent1.pop(perd)
+        case1.pop(perd)
+    return joueurs_en_jeu
