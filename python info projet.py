@@ -1505,10 +1505,7 @@ joueur 1 achète petites cases
 joueur 2 achete grosses cases
 joueur 3 aléatoire
 joueur 4 achete tout
-J1 = 0
-J2 = 0
-Cases(J1) = [[],[]]
-Cases[J1]
+
 variance du nombre de parties gagnées
 identifier inversion de tendance en modifiant un paramètre du jeu
 regarder argent qui reste au gagnant à la fin
@@ -1520,9 +1517,8 @@ voir quand le joueur achete les cases en premier
 ##
 from random import random, randint
 from copy import deepcopy
-
-Liste = [200,-60,-60,0,-100,-100,-120,0,-140,-140,-160,0,-180,-180,-200,0,-220,
--220,-240,0,-260,-260,-280,0,-300,-300,-320,0,-350,-400]
+Liste = [200,-60,0,-60,0,0,-100,0,-100,-120,0,-140,0,-140,-160,0,-180,0,-180,-200,0,-220,
+0,-220,-240,0,-260,-260,0,-280,0,-300,-300,0,-320,0,0,-350,0,-400]
 argent_j1 = argent_j2 = argent_j3 = argent_j4 = 1500
         
 def initS1(Li):
