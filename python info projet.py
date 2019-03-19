@@ -2036,4 +2036,46 @@ def jeufinal(A, C, P):
 
 print(jeufinal(argent, case, position))
 
+## graphique représentant le nombre de victoires par joueur en fonction du nombre de parties jouées
+Lx = [i for i in range(100)]
+y = [[jeufinal(argent, case, position)[0] for k in range(i)] for i in Lx]
+print(y)
+L1 = [y[i].count(0) for i in Lx]
+L2 = [y[i].count(1) for i in Lx]
+L3 = [y[i].count(2) for i in Lx]
+L4 = [y[i].count(3) for i in Lx]
+plt.plot(Lx,L1)
+plt.plot(Lx,L2)
+plt.plot(Lx,L3)
+plt.plot(Lx,L4)
+plt.show()
 
+## graphique représentant le nombre de défaites par joueur en fonction du nombre de parties jouées
+Lx = [i for i in range(100)]
+y = [[perdant(jeu(argent,case,position)[0]) for k in range(i)] for i in Lx]
+print(y)
+L1 = [y[i].count(0) for i in Lx]
+L2 = [y[i].count(1) for i in Lx]
+L3 = [y[i].count(2) for i in Lx]
+L4 = [y[i].count(3) for i in Lx]
+plt.plot(Lx,L1)
+plt.plot(Lx,L2)
+plt.plot(Lx,L3)
+plt.plot(Lx,L4)
+plt.show()
+
+## graphique représentant le nombre de victoire par joueur en fonction de l'argent de départ
+argentnew = [i for i in range(1000, 11000, 1000)]
+print(argentnew)
+Lx = argentnew
+y = [[perdant(jeu([argentnew[i] for k in range(4)],case,position)[0]) for i in range(len(argentnew))]]
+print(y)
+L1 = [y[i].count(0) for i in Lx]
+L2 = [y[i].count(1) for i in Lx]
+L3 = [y[i].count(2) for i in Lx]
+L4 = [y[i].count(3) for i in Lx]
+plt.plot(Lx,L1)
+plt.plot(Lx,L2)
+plt.plot(Lx,L3)
+plt.plot(Lx,L4)
+plt.show()
