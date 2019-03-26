@@ -2686,3 +2686,35 @@ Case = np.array([[200,-60,0,-60,0,0,-100,0,-100,-120,0],
 Plateau = plt.matshow(Case)
 plt.colorbar(Plateau)
 plt.show()
+
+## graphique représentant le taux de victoires par joueur en fonction du nombre de parties jouées
+Lx = [i for i in range(0, 61, 10)]
+y = [[jeufinal(argent, case, position) for k in range(i)] for i in range(len(Lx))]
+print(y)
+L1 = [y[i].count(0)/(i+1) for i in range(len(Lx))]
+L2 = [y[i].count(1)/(i+1) for i in range(len(Lx))]
+L3 = [y[i].count(2)/(i+1) for i in range(len(Lx))]
+L4 = [y[i].count(3)/(i+1) for i in range(len(Lx))]
+plt.plot(Lx,L1)
+plt.plot(Lx,L2)
+plt.plot(Lx,L3)
+plt.plot(Lx,L4)
+plt.show()
+
+## graphique représentant le nombre de victoire par joueur en fonction de l'argent de départ
+largbarre = 0.2
+
+argentnew = [i for i in [150, 1500, 15000]]
+y = [[jeufinal([argentnew[i] for k in range(4)],case,position) for k in range(100) ] for i in range(len(argentnew))]
+LX = [i for i in range(len(argentnew))]
+
+L1 = [y[i].count(0) for i in LX]
+L2 = [y[i].count(1) for i in LX]
+L3 = [y[i].count(2) for i in LX]
+L4 = [y[i].count(3) for i in LX]
+plt.bar([LX[i] - 2*largbarre for i in range(len(LX))], L1, width = largbarre, color = 'pink')
+plt.bar([LX[i] - largbarre for i in range(len(LX))], L2, width = largbarre, color = 'blue')
+plt.bar(LX, L3, width = largbarre, color = 'green')
+plt.bar([LX[i] + largbarre for i in range(len(LX))], L4, width = largbarre, color = 'red')
+
+plt.show()
