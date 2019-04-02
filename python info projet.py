@@ -3110,3 +3110,387 @@ plt.xticks(np.arange(len(Argents)), Argents)
 plt.legend(Joueurs, loc=0)
 plt.title('Graphique représentant le nombre de défaites en fonction de l'+"'"+'argent de départ')
 plt.show()
+
+
+
+
+
+
+
+
+
+
+"""
+joueur 1 achète petites cases
+joueur 2 achete grosses cases
+joueur 3 aléatoire
+joueur 4 achete tout
+variance du nombre de parties gagnées
+identifier inversion de tendance en modifiant un paramètre du jeu
+regarder argent qui reste au gagnant à la fin
+faire représetation graphique 
+voir quand le joueur achete les cases en premier
+"""
+##
+
+# Bibliothèque
+
+from random import random, randint
+from copy import deepcopy
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Constantes
+
+Liste = [200,-60,0,-60,0,0,-100,0,-100,-120,0,-140,0,-140,-160,0,-180,0,-180,
+-200,0,-220,0,-220,-240,0,-260,-260,0,-280,0,-300,-300,0,-320,0,0,-350,0,-400]
+argent_j1 = argent_j2 = argent_j3 = argent_j4 = 1500
+
+# Fonctions de base
+
+""" 
+La liste des cases d'un joueur représente les cases achetables ou non :
+    - elles sont positives si elles sont achetables
+    - elles sont nulles si elles sont achetées ou non achetables
+    - elles sont négatives si un joueur possède déjà cette case dans ce cas il 
+    devra payer à ce joueur
+"""
+        
+def strat_J1(Li):
+    """
+    entrée : liste Li des cases et leurs valeurs de départ
+    sortie : liste L des cases du joueur 1
+    Le joueur 1 ne va acheter que les cases les moins chères, elles sont 
+    nombreuses
+    Fonction créant la liste des cases achetables par le joueur 1
+    """
+    L = []
+    for k in Li:
+        if k >= -280 and k != 200 : 
+        # ne prend que les cases coutant au plus 280, case départ exclue
+            L.append(abs(k))
+        elif k == 200:
+            L.append(k)
+        else :
+            L.append(0)  
+    return L        
+
+def strat_J2(Li):
+    """
+    entrée : liste Li des cases et leurs valeurs de départ
+    sortie : liste L des cases du joueur 2
+    Le joueur 2 ne va acheter que les cases les plus chères, elles sont peu 
+    nombreuses
+    Fonction créant la liste des cases achetables par le joueur 2
+    """
+    L = []
+    for k in Li :
+        if k < -280:    
+        # ne prend que les cases coutant plus de 280, case départ exclue
+            L.append(abs(k))
+        elif k == 200 :
+            L.append(k)
+        else :
+            L.append(0)
+    return L
+
+def strat_J3(Li):
+    """ 
+    entrée : liste Li des cases et leurs valeurs de départ
+    sortie : liste L des cases du joueur 3
+    Le joueur 3 va acheter les cases de façon aléatoire
+    Fonction créant la liste des cases achetables par le joueur 3
+    """
+    L = [200]   # on initialise avec la case départ
+    for k in range(1,len(Li)):
+        if random()<1/2:    
+        # le joueur a une chance sur deux de choisir d'acheter la case
+            L.append(-Li[k])
+        else :
+            L.append(0)
+    return L
+
+def strat_J4(Li):
+    """ 
+    entrée : liste Li des cases et leurs valeurs de départ
+    sortie : liste L des cases du joueur 4
+    Le joueur 4 peut acheter toutes les cases
+    Fonction créant la liste des cases achetables par le joueur 4
+    """
+    L = []
+    for k in Li:
+        L.append(abs(k))
+    return L
+    
+Cases_j1 = strat_J1(Liste)
+Cases_j2 = strat_J2(Liste)
+Cases_j3 = strat_J3(Liste)
+Cases_j4 = strat_J4(Liste)
+
+argent = [argent_j1, argent_j2, argent_j3, argent_j4]
+case = [Cases_j1, Cases_j2, Cases_j3, Cases_j4]
+position = [0,0,0,0]    
+# on initialise les positions des joueurs sur la case départ
+
+nb_joueurs = 4
+
+def lancer_de_de():
+    """ Simule un lancer de dé 
+    """
+    return randint(1,6)
+    
+def acheter(place, numero_joueur, A, C):
+    """
+    entrée : case où se trouve le joueur qui joue et les listes A et C 
+    respectivement argent et case des joueurs
+    sortie : listes argent et case modifiées avec les nouvelles valeurs 
+    Fonction permettant au joueur de pouvoir acheter une case s'il a assez 
+    d'argent
+    """
+    argent1 = A.copy()
+    case1 = C.copy()
+    n = numero_joueur
+    if place != 0 and argent1[n] > case1[n][place] > 0:
+        # conditions d'achat de la case
+        argent1[n] -= case1[n][place]
+        case1[n][place] = 0    # la case est achetée
+        for i in range(nb_joueurs):
+            if i != n:
+                case1[i][place] = Liste[place]/2
+                # les autres joueurs paieront la moitié du prix initial au 
+                # joueur possédant la case
+    return argent1, case1
+    
+def payer (place, numero_joueur, A, C):
+    """
+    entrée : case (place) où se trouve le joueur qui joue, numéro du joueur qui 
+    joue, listes A et C respectivement argent et case des joueurs
+    sortie : listes argent et case modifiées avec les nouvelles valeurs
+    Fonction permettant au joueur de payer au joueur possédant la case
+    """ 
+    n = numero_joueur
+    argent1 = A.copy()
+    case1 = C.copy()
+    somme_a_payer = case1[n][place]
+    if somme_a_payer < 0:
+        argent1[n] += somme_a_payer
+    for i in range(nb_joueurs):
+        if i != n:
+            if case1[i][place] == 0:
+                argent1[i] -= somme_a_payer
+    return argent1,case1
+    
+def joue_toujours (L):
+    """
+    entrée : liste L des joueurs encore en jeu
+    sortie : liste L1 de tous les joueurs en différenciant ceux qui jouent et 
+    ceux qui ne jouent plus
+    Fonction différenciant les perdants des joueurs encore en jeu
+    """
+    L1 = []
+    for i in range (4):
+        if i in L:
+            L1.append(1)    # le joueur i joue toujours
+        else:
+            L1.append(0)
+    return L1
+    
+def elimination(L):
+    """ 
+    entrée : liste L de l'argent des joueurs
+    sortie : booléen indiquant qu'un des joueurs a perdu
+    Fonction donnant la condition d'arrêt du jeu 
+    """
+    c = 0
+    for i in range(len(L)):
+        if L[i] <= 0:
+            c += 1
+    return c!=0
+            
+def tour(numero_joueur, A, C, P, LJ):
+    """
+    entrée : numero du joueur qui joue, listes A, C, P respectivement argent,  
+    case, position des joueurs, liste LJ des joueurs encore en jeu
+    sortie : valeurs de l'argent des joueurs, cases, position à la fin du tour 
+    du joueur
+    Fonction simulant un tour d'un joueur
+    """
+    n = numero_joueur
+    position0 = P.copy()
+    argent0 = A.copy()
+    case0 = deepcopy(C)
+    if joue_toujours(LJ)[n] == 1:   # si le joueur est encore en jeu
+        r = lancer_de_de()
+        position0[n] += r      # le joueur avance
+        if position0[n] > len(Liste)-1 : # si il est au bout du circuit
+            position0[n] -= len(Liste) # il recommence un tour
+            argent0[n] += 200
+        argent0,case0 = acheter(position0[n], n, argent0, case0) 
+        argent0,case0 = payer(position0[n], n, argent0, case0) 
+    return argent0,case0,position0
+
+def jeu(A, C, P, LJ):
+    """
+    entrée : listes A, C, P respectivement argent, case, position des joueurs, 
+    liste LJ des joueurs encore en jeu
+    sortie : valeurs de l'argent des joueurs, cases, position à la fin du tour 
+    du joueur
+    Fonction simulant un jeu jusqu'à ce qu'un joueur perde
+    """
+    argent1 = A.copy()
+    case1 = deepcopy(C)
+    position1 = P.copy()
+    nb_tours = 0
+    while not elimination(argent1) and nb_tours != 100: 
+    # tant qu'aucun joueur n'est éliminé 
+        for i in range(nb_joueurs):
+            argent1,case1,position1 = tour(i,argent1,case1,position1, LJ)
+        nb_tours += 1
+    return argent1,case1,P
+    
+def perdant(L, LJ):
+    """
+    entrée : liste L d'argent des joueurs, liste LJ des joueurs en jeu
+    sortie : indice du joueur perdant 
+    Fonction donnant l'indice du joueur perdant
+    """
+    joueurs_en_jeu = joue_toujours(LJ)
+    for i in range(len(joueurs_en_jeu)):
+        if joueurs_en_jeu[i] == 0:  # le joueur i ne joue plus
+            L.pop(joueurs_en_jeu[i])
+    x = min(L)
+    return L.index(x)
+
+def jeu_complet(A, C, P):
+    """
+    entrée : listes A, C, P respectivement argent, case, position des joueurs
+    sortie : joueur gagnant à la fin d'une partie, après 3 sessions de jeu
+    Fonction simulant un jeu complet jusqu'à l'obtention d'un gagnant
+    """
+    position1 = P.copy()
+    nb_joueurs = 4
+    joueurs_en_jeu = [0,1,2,3]
+    argent1 = A.copy()
+    case1 = deepcopy(C)
+    while len(joueurs_en_jeu) != 1 :
+        jeu1 = jeu(argent1,case1,position1, joueurs_en_jeu)
+        perd = perdant(jeu1[0], joueurs_en_jeu)
+        joueurs_en_jeu.pop(perd)
+        for i in range(len(case1[perd])) :
+            if case1[perd][i] == 0:
+                for k in joueurs_en_jeu:
+                    # on remet les cases en vente comme initialement 
+                    case1[k][i] = C[k][i]
+                    case1[perd][i] = C[perd][i]
+        argent1[perd] = 1    
+        # on met l'argent à 1 arbitrairement pour qu'il ne puisse plus acheter 
+        # ou payer sans être éliminé
+    return joueurs_en_jeu[0]
+
+def moyenne(Li, n, Ag):
+    """
+    entrée : liste Li du prix des cases du plateau de base, nombre de parties n 
+             pour avoir une moyenne empirique
+    sortie : listes Défaites et Victoires respectivement du nombre de défaites 
+             et de victoires par joueur 
+    Fonction qui permet de constater l'efficacité des différentes stratégies
+    """
+    argent1 = Ag.copy()
+    Perdant = []
+    Gagnant = []
+    Defaites = [0,0,0,0]
+    Victoires = [0,0,0,0]
+    for i in range(n):
+        argent = argent1
+        Cases_j1 = strat_J1(Li)
+        Cases_j2 = strat_J2(Li)
+        Cases_j3 = strat_J3(Li)
+        Cases_j4 = strat_J4(Li)
+        case = [Cases_j1, Cases_j2, Cases_j3, Cases_j4]
+        position = [0,0,0,0]
+        jeux = jeu(argent, case, position, [0,1,2,3])
+        jeuxf = jeu_complet(argent, case, position)
+        Argent = jeux[0]
+        Perdant.append(perdant(Argent, [0,1,2,3]))
+        Gagnant.append(jeuxf)
+        Argent = []     # on réinitialise la liste Argent
+    for j in range(len(Defaites)):
+        for k in range(len(Perdant)):
+            if Perdant[k] == j:
+                Defaites[j] += 1
+            if Gagnant[k] == j:
+                Victoires[j] += 1
+    return Defaites, Victoires
+        
+print(moyenne(Liste, 100, [1500, 1500, 1500, 1500]))
+
+## Représentation du plateau de jeu
+
+Case = np.array([[200,-60,0,-60,0,0,-100,0,-100,-120,0],
+[-400,50,50,50,50,50,50,50,50,50,-140], 
+[0,50,50,50,50,50,50,50,50,50,0], 
+[-350,50,50,50,50,50,50,50,50,50,-140], 
+[0,50,50,50,50,50,50,50,50,50,-160], 
+[0,50,50,50,50,50,50,50,50,50,0], 
+[-320,50,50,50,50,50,50,50,50,50,-180], 
+[0,50,50,50,50,50,50,50,50,50,0], 
+[-300,50,50,50,50,50,50,50,50,50,-180], 
+[-300,50,50,50,50,50,50,50,50,50,-200], 
+[0,-280,1,-260,-260,1,-240,-220,1,-220,0]])
+
+Plateau = plt.matshow(Case)
+plt.colorbar(Plateau)
+plt.show()
+
+## graphique représentant le nombre de victoires par joueur en fonction de l'argent de départ
+
+largbarre = 0.2
+
+joueurs_en_jeu = [0,1,2,3]
+var_argent = [150, 1500, 15000]
+y = [moyenne(Liste, 100, [var_argent[i] for j in range(4)])[1] for i in range(len(var_argent))]
+LX = [i for i in range(len(var_argent))]
+Argents = ['150', '1500', '15000']
+Joueurs = ['joueur 1', 'joueur 2', 'joueur 3', 'joueur 4']
+
+L0 = [y[i][0] for i in range(len(y))]
+L1 = [y[i][1] for i in range(len(y))]
+L2 = [y[i][2] for i in range(len(y))]
+L3 = [y[i][3] for i in range(len(y))]
+
+plt.bar([LX[i] - 1.5*largbarre for i in range(len(LX))], L0, width = largbarre, color = 'pink')
+plt.bar([LX[i] - 0.5*largbarre for i in range(len(LX))], L1, width = largbarre, color = 'blue')
+plt.bar([LX[i] + 0.5*largbarre for i in range(len(LX))], L2, width = largbarre, color = 'green')
+plt.bar([LX[i] + 1.5*largbarre for i in range(len(LX))], L3, width = largbarre, color = 'red')
+
+plt.xticks(np.arange(len(Argents)), Argents)
+plt.legend(Joueurs, loc=0)
+plt.title('Graphique représentant le nombre de victoires en fonction de l'+"'"+'argent de départ')
+plt.show()
+
+
+## graphique représentant le nombre de défaites par joueur en fonction de l'argent de départ
+
+largbarre = 0.2
+
+joueurs_en_jeu = [0,1,2,3]
+var_argent = [150, 1500, 15000]
+y = [moyenne(Liste, 100, [var_argent[i] for j in range(4)])[0] for i in range(len(var_argent))]
+LX = [i for i in range(len(var_argent))]
+Argents = ['150', '1500', '15000']
+Joueurs = ['joueur 1', 'joueur 2', 'joueur 3', 'joueur 4']
+
+L0 = [y[i][0] for i in range(len(y))]
+L1 = [y[i][1] for i in range(len(y))]
+L2 = [y[i][2] for i in range(len(y))]
+L3 = [y[i][3] for i in range(len(y))]
+
+plt.bar([LX[i] - 1.5*largbarre for i in range(len(LX))], L0, width = largbarre, color = 'pink')
+plt.bar([LX[i] - 0.5*largbarre for i in range(len(LX))], L1, width = largbarre, color = 'blue')
+plt.bar([LX[i] + 0.5*largbarre for i in range(len(LX))], L2, width = largbarre, color = 'green')
+plt.bar([LX[i] + 1.5*largbarre for i in range(len(LX))], L3, width = largbarre, color = 'red')
+
+plt.xticks(np.arange(len(Argents)), Argents)
+plt.legend(Joueurs, loc=0)
+plt.title('Graphique représentant le nombre de défaites en fonction de l'+"'"+'argent de départ')
+plt.show()
